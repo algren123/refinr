@@ -6,7 +6,7 @@ const title = 'CoffeeChat AI';
 const description = 'Generate questions for your Coffee Chats.';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://coffeechatai'),
+  metadataBase: new URL('https://instabioai'),
   title,
   description,
   openGraph: {

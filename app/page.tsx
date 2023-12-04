@@ -1,113 +1,214 @@
-import Image from 'next/image'
+'use client';
+import Image from 'next/image';
+import { useRef, useState, useEffect, ChangeEvent, FormEvent } from 'react';
+import { Toaster, toast } from 'react-hot-toast';
+import DropDown, { VibeType } from '../components/DropDown';
+import Footer from '../components/Footer';
+import { useChat } from 'ai/react';
 
-export default function Home() {
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
+
+export default function Page() {
+  const [bio, setBio] = useState('');
+  const [vibe, setVibe] = useState<VibeType>('Professional');
+
+  const bioRef = useRef<null | HTMLDivElement>(null);
+
+  const [biosCreated, setBiosCreated] = useState(0);
+
+  const { input, handleInputChange, handleSubmit, isLoading, messages } =
+    useChat({
+      body: {
+        vibe,
+        bio,
+      },
+      onResponse() {
+        scrollToBios();
+        fetchUpdatedCounter().then(setBiosCreated);
+      },
+    });
+
+  async function fetchUpdatedCounter() {
+    const response = await fetch('/api/counter', {
+      headers: {
+        'Cache-Control': 'no-cache',
+      },
+    });
+
+    const data = await response.json();
+
+    return data;
+  }
+
+  const onInputChange = (
+    e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    setBio(input);
+    handleInputChange(e);
+  };
+
+  useEffect(() => {
+    // Function to fetch the updated counter
+    const fetchUpdatedCounter = async () => {
+      const response = await fetch('/api/counter', {
+        cache: 'no-store',
+      });
+      const data = await response.json();
+      if (typeof data === 'number') {
+        setBiosCreated(data);
+      } else {
+        console.error('Expected a number but received:', data);
+      }
+    };
+
+    if (!isLoading) {
+      // When isLoading is false, call the function to fetch the updated counter
+      fetchUpdatedCounter();
+    }
+    // This effect should run every time isLoading changes.
+  }, [isLoading]);
+
+  const scrollToBios = () => {
+    if (bioRef.current !== null) {
+      bioRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setBio(input);
+    // handleSubmit(e)
+    // setBio("")
+    // //console.log('Input :', input); // Log the fetched data
+    // setBio(input);
+    setTimeout(() => {
+      handleSubmit(e);
+      setBio('');
+    }, 500);
+  };
+
+  const lastMessage = messages[messages.length - 1];
+  const generatedBios =
+    lastMessage?.role === 'assistant' ? lastMessage.content : null;
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
+    <div className="flex max-w-5xl mx-auto flex-col items-center justify-center py-2 min-h-screen">
+      <main className="flex flex-1 w-full flex-col items-center justify-center text-center px-4 mt-4 sm:mt-4">
+        <h1 className="sm:text-6xl text-4xl max-w-[708px] font-bold text-slate-900">
+          Generate questions for your Coffee Chats
+        </h1>
+        <p className="text-slate-500 mt-5">
           <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
+            href="https://www.producthunt.com/posts/coffee-chat-ai?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-coffee&#0045;chat&#0045;ai"
             target="_blank"
-            rel="noopener noreferrer"
           >
-            By{' '}
             <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
+              src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=424418&theme=neutral"
+              alt="Coffee Chat AI - Podcast and Coffee Chat Question Generator | Product Hunt"
+              style={{ width: '250px', height: '54px' }}
+              width="250"
+              height="54"
             />
           </a>
-        </div>
-      </div>
+          {biosCreated} bios created so far.
+        </p>
+        <form className="max-w-xl w-full" onSubmit={onSubmit}>
+          <div className="flex mt-10 items-center space-x-3">
+            <Image
+              src="/1-black.png"
+              width={30}
+              height={30}
+              alt="1 icon"
+              className="mb-5 sm:mb-0"
+            />
+            <p className="text-left font-medium">
+              Copy a short bio about the person you are meeting.
+            </p>
+          </div>
+          <textarea
+            value={input}
+            onChange={onInputChange}
+            rows={4}
+            className="w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black my-5"
+            placeholder={
+              'e.g. Patrick Collison (born 9 September 1988) is an Irish billionaire entrepreneur. He is the co-founder and CEO of Stripe, which he started with his younger brother, John, in 2010.'
+            }
+          />
+          <div className="flex mb-5 items-center space-x-3">
+            <Image src="/2-black.png" width={30} height={30} alt="1 icon" />
+            <p className="text-left font-medium">Select your vibe.</p>
+          </div>
+          <div className="block">
+            <DropDown vibe={vibe} setVibe={(newVibe) => setVibe(newVibe)} />
+          </div>
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
+          {!isLoading && (
+            <button
+              className="bg-black rounded-xl text-white font-medium px-4 py-2 sm:mt-10 mt-8 hover:bg-black/80 w-full"
+              type="submit"
+              disabled={!input || isLoading} // Disable the button if input is empty or while loading
+            >
+              {isLoading ? 'Loading...' : 'Generate your questions →'}
+            </button>
+          )}
+          {isLoading && (
+            <button
+              className="bg-black rounded-xl text-white font-medium px-4 py-2 sm:mt-10 mt-8 hover:bg-black/80 w-full"
+              disabled
+            >
+              <span className="loading">
+                <span style={{ backgroundColor: 'white' }} />
+                <span style={{ backgroundColor: 'white' }} />
+                <span style={{ backgroundColor: 'white' }} />
+              </span>
+            </button>
+          )}
+        </form>
+        <Toaster
+          position="top-center"
+          reverseOrder={false}
+          toastOptions={{ duration: 2000 }}
         />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+        <hr className="h-px bg-gray-700 border-1 dark:bg-gray-700" />
+        <output className="space-y-10 my-10">
+          {generatedBios && (
+            <>
+              <div>
+                <h2
+                  className="sm:text-4xl text-3xl font-bold text-slate-900 mx-auto"
+                  ref={bioRef}
+                >
+                  Your generated questions
+                </h2>
+              </div>
+              <div className="space-y-8 flex flex-col items-center justify-center max-w-xl mx-auto">
+                {generatedBios
+                  .substring(generatedBios.indexOf('1') + 3)
+                  .split('2.')
+                  .map((generatedBio) => {
+                    return (
+                      <div
+                        className="bg-white rounded-xl shadow-md p-4 hover:bg-gray-100 transition cursor-copy border"
+                        onClick={() => {
+                          navigator.clipboard.writeText(generatedBio);
+                          toast('Bio copied to clipboard', {
+                            icon: '✂️',
+                          });
+                        }}
+                        key={generatedBio}
+                      >
+                        <p>{generatedBio}</p>
+                      </div>
+                    );
+                  })}
+              </div>
+            </>
+          )}
+        </output>
+      </main>
+      <Footer />
+    </div>
+  );
 }
