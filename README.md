@@ -15,6 +15,8 @@
 
 ### 🏠 [Homepage](https://insta-bio-ai.vercel.app/)
 
+[![Screenshot of insta-bio-ai](https://i.ibb.co/fqt64Hf/image.png)](https://insta-bio-ai.vercel.app/)
+
 ## Tech Stack
 
 - TypeScript - language
