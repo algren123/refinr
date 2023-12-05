@@ -46,7 +46,7 @@ create an environment file for your OpenAI API key and Vercel KV storage
 
 👤 **Algren Pauna**
 
-- Website: algrenpauna.com
+- Website: [algrenpauna.com](https://algrenpauna.com)
 - Github: [@algren123](https://github.com/algren123)
 - LinkedIn: [@algren-pauna](https://linkedin.com/in/algren-pauna)
 
