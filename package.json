@@ -1,6 +1,21 @@
 {
   "name": "insta-bio-ai",
   "version": "0.1.0",
+  "description": "AI Generator for Instagram bios for your profile or business",
+  "author": "Algren Pauna",
+  "license": "MIT",
+  "homepage": "https://insta-bio-ai.vercel.app/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/algren123/insta-bio-ai.git"
+  },
+  "bugs": {
+    "url": "https://github.com/algren123/insta-bio-ai/issues"
+  },
+  "engines": {
+    "npm": "10.2.3",
+    "node": "v20.10.0"
+  },
   "private": true,
   "scripts": {
     "dev": "next dev",
