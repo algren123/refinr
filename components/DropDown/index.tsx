@@ -49,7 +49,7 @@ export default function DropDown({ vibe, setVibe }: DropDownProps) {
           className="absolute left-0 z-10 mt-2 w-full origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
           key={vibe}
         >
-          <div className="">
+          <div>
             {vibes.map((vibeItem) => (
               <Menu.Item key={vibeItem}>
                 {({ active }) => (

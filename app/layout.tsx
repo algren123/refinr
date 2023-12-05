@@ -2,8 +2,8 @@ import { Analytics } from '@vercel/analytics/react';
 import { Metadata } from 'next';
 import '../styles/globals.css';
 
-const title = 'CoffeeChat AI';
-const description = 'Generate questions for your Coffee Chats.';
+const title = 'InstaBio AI';
+const description = 'Generate bios for your Instagram profile or business.';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://instabioai'),
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     title,
     description,
-    locale: 'en_US',
+    locale: 'en_GB',
     type: 'website',
   },
   twitter: {
