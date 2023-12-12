@@ -15,7 +15,7 @@
 
 ### 🏠 [Homepage](https://refinr.vercel.app/)
 
-[![Screenshot of refinr](https://ibb.co/wBVKCGF)](https://refinr.app/)
+[![Screenshot of refinr](https://i.ibb.co/TY6HRjx/image.png)](https://refinr.app/)
 
 ## Tech Stack
 
