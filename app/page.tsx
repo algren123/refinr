@@ -1,82 +1,94 @@
 'use client';
 import {
   useRef,
-  useState,
-  useCallback,
+  useReducer,
   FormEvent,
   MutableRefObject,
+  useCallback,
 } from 'react';
 import Image from 'next/image';
 import { useChat } from 'ai/react';
 import { Toaster, toast } from 'react-hot-toast';
-import DropDown, { VibeType } from '../components/DropDown';
-import Footer from '../components/Footer';
-import useBioCounter from '@/hooks/useBioCounter';
+import useRefinementCounter from '@/hooks/useRefinementCounter';
+import ticketReducer from '@/reducers/ticketReducer';
+import Footer from '@/components/Footer';
+import DropDown from '@/components/DropDown';
+import { disableSubmit, scrollToRefinement } from '@/helpers/helpers';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 export const fetchCache = 'force-no-store';
 
-const scrollToBios = (bioRef: MutableRefObject<HTMLDivElement | null>) => {
-  if (bioRef.current !== null) {
-    bioRef.current.scrollIntoView({ behavior: 'smooth' });
-  }
+export type TTicket = {
+  industry: string;
+  title: string;
+  description: string;
+  context: string;
+  storyPoints: number;
 };
 
 export default function Page() {
-  const [bio, setBio] = useState('');
-  const [vibe, setVibe] = useState<VibeType>('Professional');
-  const { bioCounter, fetchUpdatedCounter } = useBioCounter();
-  const bioRef = useRef<null | HTMLDivElement>(null);
+  const [ticket, dispatch] = useReducer(ticketReducer, {
+    industry: '',
+    title: '',
+    description: '',
+    context: '',
+    storyPoints: 0,
+  });
+  const { refinementCounter, fetchUpdatedCounter } = useRefinementCounter();
+  const refinementRef = useRef<null | HTMLDivElement>(null);
 
-  const { input, handleInputChange, handleSubmit, isLoading, messages } =
-    useChat({
-      body: {
-        vibe,
-        bio,
-      },
-      onResponse() {
-        scrollToBios(bioRef);
-        fetchUpdatedCounter();
-      },
-    });
+  const { handleInputChange, handleSubmit, isLoading, messages } = useChat({
+    body: {
+      title: ticket.title,
+      industry: ticket.industry,
+      description: ticket.description,
+      context: ticket.context,
+      storyPoints: ticket.storyPoints,
+    },
+    onResponse() {
+      scrollToRefinement(refinementRef);
+      fetchUpdatedCounter();
+    },
+  });
 
-  const handleInput = useCallback(
+  const updateDescription = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      setBio(e.target.value);
+      dispatch({
+        type: 'UPDATE_DESCRIPTION',
+        payload: e.target.value,
+      });
       handleInputChange(e);
     },
     [handleInputChange]
   );
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    setBio(input);
-    handleSubmit(e);
-  };
-
   const lastMessage = messages[messages.length - 1];
-  const generatedBios =
+  const generatedRefinement =
     lastMessage?.role === 'assistant' ? lastMessage.content : null;
 
   return (
     <div className="flex max-w-5xl mx-auto flex-col items-center justify-center py-2 min-h-screen">
       <main className="flex flex-1 w-full flex-col items-center justify-center text-center px-4 mt-4 sm:mt-4">
         <h1 className="sm:text-6xl text-4xl max-w-[708px] font-bold text-slate-900">
-          Generate an Instagram bio for your profile or business
+          Refinr.
+          <br />
+          <br />
+          Let AI tackle your ticket refinement
         </h1>
         <p className="flex align-middle text-slate-500 mt-5">
-          {bioCounter || (
+          {refinementCounter || (
             <span className="loading mr-1">
               <span style={{ backgroundColor: 'black' }} />
               <span style={{ backgroundColor: 'black' }} />
               <span style={{ backgroundColor: 'black' }} />
             </span>
           )}{' '}
-          bios created so far
+          tickets have been refined so far
         </p>
         <a
           className="flex max-w-fit items-center justify-center space-x-2 rounded-full border border-gray-300 bg-white px-4 py-2 mt-5 text-sm text-gray-600 shadow-md transition-colors hover:bg-gray-100 mb-5"
-          href="https://github.com/algren123/insta-bio-ai"
+          href="https://github.com/algren123/refinr"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -91,43 +103,117 @@ export default function Page() {
           </svg>
           <p>Star on GitHub</p>
         </a>
-        <form className="max-w-xl w-full" onSubmit={onSubmit}>
+        <form className="max-w-xl w-full" onSubmit={handleSubmit}>
           <div className="flex mt-5 items-center space-x-3">
             <Image
               src="/1-black.png"
-              width={30}
-              height={30}
+              width={45}
+              height={45}
               alt="1 icon"
               className="mb-5 sm:mb-0"
             />
             <p className="text-left font-medium">
-              Give a description of yourself and your Instagram profile
+              What is the company&apos;s industry?
+            </p>
+          </div>
+          <input
+            type="text"
+            value={ticket.industry}
+            onChange={(e) =>
+              dispatch({ type: 'UPDATE_INDUSTRY', payload: e.target.value })
+            }
+            className="w-full rounded-md border-2 border-gray-200 shadow-sm focus:ring-black my-5 p-2"
+            placeholder="e.g. Digital Entertainment"
+          />
+          <div className="flex mt-5 items-center space-x-3">
+            <Image
+              src="/2-black.png"
+              width={45}
+              height={45}
+              alt="2 icon"
+              className="mb-5 sm:mb-0"
+            />
+            <p className="text-left font-medium">
+              What is the title of the ticket?
+            </p>
+          </div>
+          <input
+            type="text"
+            value={ticket.title}
+            onChange={(e) =>
+              dispatch({ type: 'UPDATE_TITLE', payload: e.target.value })
+            }
+            className="w-full rounded-md border-2 border-gray-200 shadow-sm focus:ring-black my-5 p-2"
+            placeholder={
+              'e.g. Update the "About Us" section with social medias and contact details'
+            }
+          />
+          <div className="flex mt-5 items-center space-x-3">
+            <Image
+              src="/3-black.png"
+              width={45}
+              height={45}
+              alt="3 icon"
+              className="mb-5 sm:mb-0"
+            />
+            <p className="text-left font-medium">
+              What is the description of the ticket?
             </p>
           </div>
           <textarea
-            value={input}
-            onChange={handleInput}
+            value={ticket.description}
+            onChange={(e) => updateDescription(e)}
             rows={3}
             className="w-full rounded-md border-2 border-gray-200 shadow-sm focus:ring-black my-5 p-2"
             placeholder={
-              'e.g. John Smith, former professional rugby player. I am now a DIY gardener selling homemade plant pots. Based in UK, London. Able to personalise pots upon request.'
+              'e.g. The Instagram, X and LinkedIn links are missing from the "About Us" section. They need to be added and the contact details need to be updated.'
             }
           />
-          <div className="flex mb-5 items-center space-x-3">
-            <Image src="/2-black.png" width={30} height={30} alt="1 icon" />
-            <p className="text-left font-medium">Select the profile vibe</p>
+          <div className="flex mt-5 items-center space-x-3">
+            <Image
+              src="/4-black.png"
+              width={45}
+              height={45}
+              alt="4 icon"
+              className="mb-5 sm:mb-0"
+            />
+            <p className="text-left font-medium">
+              What is the context of the ticket?
+            </p>
           </div>
-          <div className="block">
-            <DropDown vibe={vibe} setVibe={(newVibe) => setVibe(newVibe)} />
+          <textarea
+            rows={3}
+            value={ticket.context}
+            onChange={(e) =>
+              dispatch({ type: 'UPDATE_CONTEXT', payload: e.target.value })
+            }
+            className="w-full rounded-md border-2 border-gray-200 shadow-sm focus:ring-black my-5 p-2"
+            placeholder={
+              'e.g. This is part of the social revamp of the website after the new acquisition of the company.'
+            }
+          />
+          <div className="flex my-5 items-center space-x-3">
+            <Image
+              src="/5-black.png"
+              width={45}
+              height={45}
+              alt="5 icon"
+              className="mb-5 sm:mb-0"
+            />
+            <p className="text-left font-medium">
+              How many story points should the ticket have? Select 0 if you want
+              AI to suggest a number.
+            </p>
           </div>
+          <DropDown storyPoint={ticket.storyPoints} dispatch={dispatch} />
 
           {!isLoading && (
             <button
               className="bg-black rounded-xl text-white font-medium px-4 py-2 sm:mt-10 mt-8 hover:bg-black/80 w-full"
               type="submit"
-              disabled={!input || isLoading} // Disable the button if input is empty or while loading
+              disabled={disableSubmit(ticket) || isLoading} // Disable the button if input is empty or while loading
             >
-              Generate your bio →
+              Refine your ticket →
             </button>
           )}
           {isLoading && (
@@ -150,36 +236,33 @@ export default function Page() {
         />
         <hr className="h-px bg-gray-700 border-1 dark:bg-gray-700" />
         <output className="space-y-10 my-10">
-          {generatedBios && (
+          {generatedRefinement && (
             <>
               <div>
                 <h2
                   className="sm:text-4xl text-3xl font-bold text-slate-900 mx-auto"
-                  ref={bioRef}
+                  ref={refinementRef}
                 >
-                  Your generated questions
+                  Here is your refinement
                 </h2>
               </div>
               <div className="space-y-8 flex flex-col items-center justify-center max-w-xl mx-auto">
-                {generatedBios
-                  .substring(generatedBios.indexOf('1') + 3)
-                  .split('2.')
-                  .map((generatedBio) => {
-                    return (
-                      <div
-                        className="bg-white rounded-xl shadow-md p-4 hover:bg-gray-100 transition cursor-copy border"
-                        onClick={() => {
-                          navigator.clipboard.writeText(generatedBio);
-                          toast('Bio copied to clipboard', {
-                            icon: '✂️',
-                          });
-                        }}
-                        key={generatedBio}
-                      >
-                        <p>{generatedBio}</p>
-                      </div>
-                    );
-                  })}
+                {generatedRefinement.split('-+').map((generatedRefinement) => {
+                  return (
+                    <div
+                      className="bg-white rounded-xl shadow-md p-4 hover:bg-gray-100 transition cursor-copy border"
+                      onClick={() => {
+                        navigator.clipboard.writeText(generatedRefinement);
+                        toast('Refinement copied to clipboard', {
+                          icon: '✂️',
+                        });
+                      }}
+                      key={generatedRefinement}
+                    >
+                      <p>{generatedRefinement}</p>
+                    </div>
+                  );
+                })}
               </div>
             </>
           )}

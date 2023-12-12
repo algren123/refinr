@@ -11,32 +11,38 @@ const openai = new OpenAIApi(config);
 // Set the runtime to edge for best performance
 export const runtime = 'edge';
 
-const vibeHandler = (vibe: string): string => {
-  return vibe === 'Funny'
-    ? 'The biography should contain humor and be slightly ridiculous.'
-    : vibe === 'Business'
-    ? 'The biography is for a business, and should be marketable and engagin'
-    : 'The biography should be professional and engaging.';
-};
-
 export async function POST(req: Request) {
-  const { vibe, bio } = await req.json();
-  await kv.incr('biocounter');
-  const newCounterValue = await kv.get('biocounter');
+  const { industry, title, description, context, storyPoints } =
+    await req.json();
+
+  console.log(industry, title, description, context, storyPoints);
+  await kv.incr('refinements');
+  const newCounterValue = await kv.get('refinements');
   console.log('Incremented to :', newCounterValue); // Log the new counter value
 
   // Ask OpenAI for a streaming completion given the prompt
   const response = await openai.createChatCompletion({
-    model: 'gpt-3.5-turbo',
+    model: 'gpt-4-1106-preview',
     stream: true,
     messages: [
       {
         role: 'user',
-        content: `I am a Instagram user that is trying to create their new bio using the following biography: "${bio}" 
-        Based on this, generate two ${vibe.toLowerCase()} biographies (bios) that directly relate to the biography provided. ${vibeHandler(
-          vibe
-        )}. Ensure each biography is concise and under 250 characters and is formatted.
-        If you can't come up with anything say you need them to try again, do not make up a person. Feel free to use emojis.
+        content: `I want you to act as a Business Analyst and help me refine a ticket. I will provide you with the industry that my team is part of, the title of the ticket, a description of what the ticket is and should do, and a context of the wider scope.
+        . The industry that my team is a part of, is: ${industry}. The title of the ticket is ${title}, the description is ${description}, the context is ${context}.
+        ${
+          storyPoints
+            ? `The story points are ${storyPoints}.`
+            : 'Please give it a story point value that falls in the fibonacci sequence.'
+        }
+        I want you to follow a template for the refinement. The template includes the following signs -+ at each heading, dont forget to add them:
+        1. Title:
+        -+2. Story Points:
+        -+3. Description:
+        -+4. Context:
+        -+5. Acceptance Criteria:
+
+        If you can't come up with anything say you need them to try again, do not make up a ticket. Ensure that all relevant information is included and that the language is clear and concise.
+        Do not attempt to continue the conversation. Do not do an introduction, go straight into the template.
         `,
       },
     ],

@@ -23,9 +23,10 @@ export default function Footer() {
       </div>
       <div className="flex space-x-4 pb-4 sm:pb-0">
         <Link
-          href="https://github.com/algren123/insta-bio-ai"
+          href="https://github.com/algren123/refinr"
           className="group"
           aria-label="GitHub"
+          target="_blank"
         >
           <svg
             aria-hidden="true"

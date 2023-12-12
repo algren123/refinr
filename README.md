@@ -1,4 +1,4 @@
-<h1 align="center">Welcome to insta-bio-ai 👋</h1>
+<h1 align="center">Welcome to Refinr. 👋</h1>
 <p>
   <img alt="Version" src="https://img.shields.io/badge/version-0.1.0-blue.svg?cacheSeconds=2592000" />
   <img src="https://img.shields.io/badge/npm-10.2.3-blue.svg" />
@@ -11,16 +11,16 @@
   </a>
 </p>
 
-> AI Generator for Instagram bios for your profile or business
+> AI Business Analyst to help you with your ticket refinement
 
-### 🏠 [Homepage](https://insta-bio-ai.vercel.app/)
+### 🏠 [Homepage](https://refinr.vercel.app/)
 
-[![Screenshot of insta-bio-ai](https://i.ibb.co/fqt64Hf/image.png)](https://insta-bio-ai.vercel.app/)
+[![Screenshot of refinr](https://ibb.co/wBVKCGF)](https://refinr.app/)
 
 ## Tech Stack
 
 - TypeScript - language
-- Next 13 - framework
+- Next 14 - framework
 - Vercel KV - database
 - OpenAI API
 - Vercel AI SDK

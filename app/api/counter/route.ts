@@ -2,7 +2,7 @@ import { kv } from '@vercel/kv';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
-  const biosCreated = await kv.get('biocounter');
+  const biosCreated = await kv.get('refinements');
   const res = new NextResponse(JSON.stringify(biosCreated), {
     status: 200,
     headers: {

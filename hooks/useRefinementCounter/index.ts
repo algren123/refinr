@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
-const useBioCounter = () => {
-  const [bioCounter, setBioCounter] = useState(0);
+const useRefinementCounter = () => {
+  const [refinementCounter, setRefinementCounter] = useState(0);
 
   const fetchUpdatedCounter = async () => {
     const response = await fetch('/api/counter', {
@@ -10,7 +10,7 @@ const useBioCounter = () => {
 
     const data = await response.json();
     if (typeof data === 'number') {
-      setBioCounter(data);
+      setRefinementCounter(data);
     } else {
       console.error('Expected a number but received:', data);
     }
@@ -20,7 +20,7 @@ const useBioCounter = () => {
     fetchUpdatedCounter();
   }, []);
 
-  return { bioCounter, fetchUpdatedCounter };
+  return { refinementCounter, fetchUpdatedCounter };
 };
 
-export default useBioCounter;
+export default useRefinementCounter;
