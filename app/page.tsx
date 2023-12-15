@@ -1,14 +1,10 @@
 'use client';
-import {
-  useRef,
-  useReducer,
-  FormEvent,
-  MutableRefObject,
-  useCallback,
-} from 'react';
+import { useRef, useReducer, useCallback } from 'react';
 import Image from 'next/image';
 import { useChat } from 'ai/react';
+import ReactMarkdown from 'react-markdown';
 import { Toaster, toast } from 'react-hot-toast';
+import remarkGfm from 'remark-gfm';
 import useRefinementCounter from '@/hooks/useRefinementCounter';
 import ticketReducer from '@/reducers/ticketReducer';
 import Footer from '@/components/Footer';
@@ -247,22 +243,23 @@ export default function Page() {
                 </h2>
               </div>
               <div className="space-y-8 flex flex-col items-center justify-center max-w-xl mx-auto">
-                {generatedRefinement.split('-+').map((generatedRefinement) => {
-                  return (
-                    <div
-                      className="bg-white rounded-xl shadow-md p-4 hover:bg-gray-100 transition cursor-copy border"
-                      onClick={() => {
-                        navigator.clipboard.writeText(generatedRefinement);
-                        toast('Refinement copied to clipboard', {
-                          icon: '✂️',
-                        });
-                      }}
-                      key={generatedRefinement}
-                    >
-                      <p>{generatedRefinement}</p>
-                    </div>
-                  );
-                })}
+                <div
+                  className="bg-white rounded-xl shadow-md p-4 hover:bg-gray-100 transition cursor-copy border"
+                  onClick={() => {
+                    navigator.clipboard.writeText(generatedRefinement);
+                    toast('Refinement copied to clipboard', {
+                      icon: '✂️',
+                    });
+                  }}
+                  key={generatedRefinement}
+                >
+                  <ReactMarkdown
+                    className="prose prose-neutral prose-p:leading-relaxed break-words"
+                    remarkPlugins={[remarkGfm]}
+                  >
+                    {generatedRefinement}
+                  </ReactMarkdown>
+                </div>
               </div>
             </>
           )}

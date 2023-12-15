@@ -34,13 +34,7 @@ export async function POST(req: Request) {
             ? `The story points are ${storyPoints}.`
             : 'Please give it a story point value that falls in the fibonacci sequence.'
         }
-        I want you to follow a template for the refinement. The template includes the following signs -+ at each heading, dont forget to add them:
-        1. Title:
-        -+2. Story Points:
-        -+3. Description:
-        -+4. Context:
-        -+5. Acceptance Criteria:
-
+        Use rows titled: Title, Story Points, Description, Context, Acceptance Criteria. Make the titles bold and underlined and the text should be on a new line break. Please fit the content in less than 250 words.
         If you can't come up with anything say you need them to try again, do not make up a ticket. Ensure that all relevant information is included and that the language is clear and concise.
         Do not attempt to continue the conversation. Do not do an introduction, go straight into the template.
         `,
