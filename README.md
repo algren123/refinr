@@ -14,7 +14,6 @@
 > AI Business Analyst to help you with your ticket refinement
 
 ### 🏠 [Homepage](https://refinr.vercel.app/)
-[![Screenshot of Lighthouse report](https://i.ibb.co/4Pb0MGM/image.png)]
 [![Screenshot of refinr](https://i.ibb.co/TY6HRjx/image.png)](https://refinr.vercel.app/)
 
 ## Tech Stack
